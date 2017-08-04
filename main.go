@@ -27,14 +27,20 @@ func main() {
 		log.Fatalln("Please specify a listen port `relay <port>`")
 	}
 
-	// start server
+	// if we are setup we are good to start the server
+	serverStart()
+
+}
+
+// initiate the server
+func serverStart() {
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", os.Args[1]))
 	if err != nil {
 		log.Fatalf("Cannot establish listener: %s\n", err)
 	}
 
-	log.Printf("connection estableshed on %s", os.Args[1])
-	log.Println("waiting for incoming relay requests")
+	// log.Printf("connection estableshed on %s", os.Args[1])
+	// log.Println("waiting for incoming relay requests")
 
 	for {
 		conn, err := listener.Accept()
@@ -47,4 +53,5 @@ func main() {
 		// since all connections are relay requests
 		go handleRelayRequest(conn)
 	}
+
 }

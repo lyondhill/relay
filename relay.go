@@ -60,8 +60,6 @@ func handleRelayRequest(relayConn net.Conn) {
 		}
 	}
 
-
-
 	// if we get here we went through all the avaliable ports on the
 	// machine and were unable to find an available one
 	log.Fatalln("Unable to establish a relay listener")
@@ -93,7 +91,7 @@ func establishListener(relayConn net.Conn) (net.Listener, error) {
 		}
 
 		return listener, nil
-	}	
+	}
 
 	return nil, fmt.Errorf("Unable to establish a relay listener")
 }
@@ -122,7 +120,8 @@ func connChanListener(listener net.Listener) chan net.Conn {
 	return netChannel
 }
 
-//
+// once a new connection comes in for our client
+// lets get it taken care of
 func handleClientConn(clientConn net.Conn, session *yamux.Session) {
 
 	// ensure we close the client connection

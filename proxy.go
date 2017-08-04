@@ -49,9 +49,9 @@ func localProxy() {
 			defer serverMuxCon.Close()
 
 			// establish a connection to the local forward port
-			localForwardConn, err := net.Dial("tcp", fmt.Sprintf("localhost:%s", localForwardPort))
+			localForwardConn, err := net.Dial("tcp", fmt.Sprintf("localhost:%s", *localForwardPort))
 			if err != nil {
-				log.Fatalf("Failed to connect to local server on port %s %s", localForwardPort, err)
+				log.Fatalf("Failed to connect to local server on port %s %s", *localForwardPort, err)
 			}
 
 			go io.Copy(localForwardConn, serverMuxCon)

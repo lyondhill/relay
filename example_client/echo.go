@@ -32,7 +32,7 @@ func main() {
 	fmt.Printf("established relay address: %s:%s\n", os.Args[1], serverPort)
 
 	// establish a multiplex server
-	session, err := yamux.Client(conn, yamux.DefaultConfig())
+	session, err := yamux.Server(conn, yamux.DefaultConfig())
 	if err != nil {
 		log.Fatalf("unable to multiplex the relay server connection %s", err)
 	}
