@@ -25,6 +25,7 @@ The relay binary can be used in one of two ways:
   lets use redis as an example:
 
   start redis with `redis-server --port 6379 --bind localhost`
+  
   start relay  with `relay --localForwardPort=6379 <relay_host> <relay_port>`
 
 ### Integrate relay into your server
