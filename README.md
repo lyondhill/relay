@@ -18,15 +18,14 @@ The relay binary can be used in one of two ways:
 
 ## How to integrate
 
-There are two ways to integrate it into your existing server.
-
 ### User relay as a forwarder
 
   If your using a server that you dont want to modify, or you are just not interested in making any changes to it, you can initiate the server to listen on localhost, then Start the relay as a forwarder on the same machine.
 
   lets use redis as an example:
 
-  start redis with `redis-server --port 6379 --bind localhost` then start relay on the same machine with `relay --localForwardPort=6379 <relay_host> <relay_port>`
+  start redis with `redis-server --port 6379 --bind localhost`
+  start relay  with `relay --localForwardPort=6379 <relay_host> <relay_port>`
 
 ### Integrate relay into your server
   
