@@ -42,10 +42,11 @@ The relay binary can be used in one of two ways:
   Once your program has specified multiplexing relay will send a plain text string followed by a new line character. The string is the port it was able to establish for you to use to establish new connections to the relay server. For example if the server is able to establish a listener on port 4532 the first thing the server would send back would be `4532\n`. At this point the next thing that needs to be done is to escalate the tcp connection to a multiplexed server. The relay client is a server so in the multiplexed connection it establishes itself as a server. The specific multiplexing protocol relay uses is defined by [yamux](https://github.com/hashicorp/yamux). From this point on you will wait to accept connections as you usually would.
 
   Communication Series
+
 | Client               | Server        | user                  |
 | -------------------- | ------------- | --------------------- |
 | multiplex\n          |               |                       |
-|                      | <port>\n      |                       |
+|                      | [port]\n      |                       |
 | wait for connections |               |                       |
 |                      |               |  establish connection |
 |                      | <- pipe ->    |                       |
@@ -56,12 +57,13 @@ The relay binary can be used in one of two ways:
   Now that you have selected the `pool` protocol you now have to tell the server if your a new or existing pool connection. To establish a new relay you will simply send `new\n` to the server. When a new connection is established the server will indicate that it is ready to recieve new connections for your designated connection pool with `<port_number>\n` followed by `<id>\n`. As soon as you recieve the id from the server you now will have 1 connection waiting in the connection pool. Once a connection is needed data will begin flowing through the connection, When it is done being used it will disconnect. To add additional connections to your connection pool, you simply establish a new connection to the relay server and pass `pool\n` followed by `<id>\n` where the id is the id provided by the server in your first attempt.
 
   Communication Series
+
 | Client               | Server        | user                  |
 | -------------------- | ------------- | --------------------- |
 | pool\n               |               |                       |
 | new\n                |               |                       |
-|                      | <port>\n      |                       |
-|                      | <id>\n        |                       |
+|                      | [port]\n      |                       |
+|                      | [id]\n        |                       |
 | wait for connections |               |                       |
 |                      |               |  establish connection |
 |                      | <- pipe ->    |                       |
@@ -72,17 +74,18 @@ The relay binary can be used in one of two ways:
   Now that you have selected `event` protocol you need to indicate if your establishing a new event listener or your are responding to an event. To establish a new event listener you simply send `new\n` to the server. When this happens the server will confirm your ready to recieve events by sending `<port>\n` back to the client. When a new connection for your event is establisht with the server the server will send your event client an id that you will use to recieve the connection. the connection on the wire will look 
 
   Communication Series
+  
 | Client                | Server        | user                  |
 | --------------------- | ------------- | --------------------- |
 | event\n               |               |                       |
 | new\n                 |               |                       |
-|                       | <port>\n      |                       |
+|                       | [port]\n      |                       |
 | wait for connections  |               |                       |
 |                       |               |  establish connection |
-|                       | <id>\n        |                       |
+|                       | [id]\n        |                       |
 | create new connection |               |                       |
 | event\n               |               |                       |
-| <id>\n                |               |                       |
+| [id]\n                |               |                       |
 |                       | <- pipe ->    |                       |
 
 
