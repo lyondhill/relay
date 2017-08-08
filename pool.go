@@ -38,20 +38,23 @@ func handlePoolRequest(relayConn net.Conn) {
 		// establish a new listener
 		listener, err := establishListener(relayConn)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Print(err.Error())
+			return
 		}
 
 		// inform the connection of the newly established port number	
 		_, err = fmt.Fprintf(relayConn, "%d\n", port(listener))
 		if err != nil {
-			log.Fatalf("Unable to communicate with the relay client %s", err)
+			log.Printf("Unable to communicate with the relay client %s", err)
+			return
 		}
 
 
 		// inform the new connection of the ID they can use
 		_, err = fmt.Fprintf(relayConn, "%s\n", id)
 		if err != nil {
-			log.Fatalf("Unable to communicate with the relay client %s", err)
+			log.Printf("Unable to communicate with the relay client %s", err)
+			return
 		}
 
 		go poolUserConnection(listener, id)
@@ -65,12 +68,14 @@ func handlePoolRequest(relayConn net.Conn) {
 			return
 		}
 		pool.Put(relayConn)
+		// todo: lock around map updates
 		pools[action] = pool
 	}	
 
 }
 
 // create a random id for the pool and confirm the pool hasnt already used this id
+// todo: lock when modifying the map
 func randPoolID() string {
     n := 5
     b := make([]byte, n)
@@ -102,6 +107,7 @@ func poolUserConnection(listener net.Listener, id string) {
 			if !ok {
 				// connections have stopped.
 				// clean the pool for this id
+				// todo: lock
 				delete(pools, id)
 				return
 			}

@@ -61,7 +61,8 @@ func handleEventRequest(relayConn net.Conn) {
 
 }
 
-// create a random id for the pool and confirm the pool hasnt already used this id
+// create a random id for the event and confirm the event id isnt being used by another
+// todo: locking when modifying a map
 func randEventID() string {
     n := 5
     b := make([]byte, n)
@@ -83,8 +84,6 @@ func eventUserConnection(listener net.Listener, relayConn net.Conn) {
 	// fire up the listener go routine and start reading from channels
 	connChan := connChanListener(listener)
 
-	// create a time so we can check to make sure the relay client is still connected
-	// timeChan := time.Tick(10 * time.Second)
 
 	// listen for new connections on the new listener
 	for {
@@ -97,6 +96,9 @@ func eventUserConnection(listener net.Listener, relayConn net.Conn) {
 			go handleEventClientConn(clientConn, relayConn)
 
 		}
+
+		// add in a case that will allow us to check for disconnects of the relay 
+		// that way we can shut down the listener
 
 	}
 

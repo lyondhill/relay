@@ -7,8 +7,7 @@ Relay allows non communicative servers to communicate with each other through an
 
 Relay works by establishing a TCP listener that waits for connections to come in. Once a connection
 is established relay will attempt to establish a new TCP listener to facilitate this relay client's connections.
-Relay will then report to the relay client the port it has available for communication. At this point Both the 
-relay server and the relay client switch their standard tcp connection to a [TCP multiplexer](https://en.wikipedia.org/wiki/Multiplexing). From this point on any connections that are established on the new TCP listener will create a new multiplex'ed connection to the relay client and forward all traffic through the server to the relay client.
+Relay will then report to the relay client the port it has available for communication. Relay supports three protocols for client connections.
 
 ## How to use it
 
@@ -31,7 +30,7 @@ The relay binary can be used in one of two ways:
 ### Integrate relay into your server
 
   There are three possible means of integrating relay into your server.
-  
+
     1 You can use a multiplexer to send multiple connections through a single TCP connection.
     2 You can create a connection pool that will accept connections for this one request chain.
     3 you can wait for connection events before establishing a new connection. 
@@ -40,7 +39,7 @@ The relay binary can be used in one of two ways:
 
 #### For Multiplexing
 
-  Once your program has specified multiplexing relay will send a plain text string followed by a new line character. The string is the port it was able to establish for you to use to establish new connections to the relay server. For example if the server is able to establish a listener on port 4532 the first thing the server would send back would be `4532\n`. At this point the next thing that needs to be done is to escalate the tcp connection to a multiplexed server. The relay client is a server so in the multiplexed connection it establishes itself as a server. The specific multiplexing protocol relay uses is defined by [yamux](https://github.com/hashicorp/yamux). From this point on you will wait to accept connections as you usually would.
+  Once your program has specified multiplexing, relay will send a plain text string followed by a new line character. The string is the port it was able to establish for you to use to establish new connections to the relay server. For example if the server is able to establish a listener on port 4532 the first thing the server would send back would be `4532\n`. At this point the next thing that needs to be done is to escalate the tcp connection to a multiplexed server. The relay client is a server so in the multiplexed connection it establishes itself as a server. The specific multiplexing protocol relay uses is defined by [yamux](https://github.com/hashicorp/yamux). From this point on you will wait to accept connections as you usually would.
 
   Communication Series
 
