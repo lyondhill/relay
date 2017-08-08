@@ -21,6 +21,9 @@ func localProxy() {
 		log.Fatalf("Unable to establish connection to %s\nmake sure the relay server is reachable `relay --localForwardPort=<local_port> <host> <port>\nError message: %s", err)
 	}
 
+	// tell the server I want to use the multiplexer
+	fmt.Fprintln(conn, "multiplex")
+
 	// listen for the port we should report
 	var serverPort string
 	_, err = fmt.Fscanln(conn, &serverPort)

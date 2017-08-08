@@ -5,7 +5,6 @@ import (
 	"os"
 	"net"
 	"fmt"
-	"time"
 	"io"
 
 	"github.com/hashicorp/yamux"
@@ -13,16 +12,14 @@ import (
 
 func init() {
 	os.Args = []string{"relay", "1234"}
-	go serverStart()
-
-	// we need to give the server a bit to start
-	time.Sleep(1*time.Second)
-	
+	go serverStart()	
 }
 
-func TestServer(t *testing.T) {
+func TestMuxServer(t *testing.T) {
 
 	serv, _ := net.Dial("tcp", "localhost:1234")
+
+	fmt.Fprintln(serv, "multiplex")
 
 	var serverPort string
 	fmt.Fscanln(serv, &serverPort)
@@ -52,10 +49,89 @@ func TestServer(t *testing.T) {
 
 }
 
-func BenchmarkHello(b *testing.B) {
-    for i := 0; i < b.N; i++ {
-        fmt.Sprintf("hello")
-    }
+func TestPoolServer(t *testing.T) {
+
+	serv, _ := net.Dial("tcp", "localhost:1234")
+
+	fmt.Fprintln(serv, "pool")
+	fmt.Fprintln(serv, "new")
+
+	var serverPort string
+	fmt.Fscanln(serv, &serverPort)
+	if serverPort != "1236" {
+		t.Errorf("Server reported an inaccurate port: %s", serverPort)
+	}
+
+	var serverID string
+	fmt.Fscanln(serv, &serverID)
+
+	serv2, _ := net.Dial("tcp", "localhost:1234")
+	fmt.Fprintln(serv2, "pool")
+	fmt.Fprintln(serv2, serverID)
+
+	msgs := make(chan string)
+	go func() {
+		var info string
+		fmt.Fscanln(serv, &info)
+		msgs <- info
+	}()
+
+	go func() {
+		var info string
+		fmt.Fscanln(serv2, &info)
+		msgs <- info
+	}()
+
+	// start a client and connect to the server
+	conn, _ := net.Dial("tcp", "localhost:1236")
+	fmt.Fprintln(conn, "information!")
+
+	info := <- msgs
+	if info != "information!" {
+		t.Errorf("information not transmitted between server and client (%s)", info)
+	}
+
+}
+
+func TestEventServer(t *testing.T) {
+
+	serv, _ := net.Dial("tcp", "localhost:1234")
+
+	fmt.Fprintln(serv, "event")
+	fmt.Fprintln(serv, "new")
+
+	var serverPort string
+	fmt.Fscanln(serv, &serverPort)
+	if serverPort != "1237" {
+		t.Errorf("Server reported an inaccurate port: %s", serverPort)
+	}
+
+	newID := make(chan string)
+	go func() {
+		var id string
+		fmt.Fscanln(serv, &id)
+		newID <- id
+	}()
+
+	// start a client and connect to the server
+	conn, _ := net.Dial("tcp", "localhost:1237")
+
+	fmt.Fprintln(conn, "information!")
+
+	serverConnection := <- newID
+
+	serv2, _ := net.Dial("tcp", "localhost:1234")
+
+	fmt.Fprintln(serv2, "event")
+	fmt.Fprintln(serv2, serverConnection)
+
+	var info string
+	fmt.Fscanln(serv2, &info)
+
+	if info != "information!" {
+		t.Errorf("information not transmitted between server and client (%s)", info)
+	}
+
 }
 
 func BenchmarkThroughput(b *testing.B) {
@@ -85,7 +161,6 @@ func BenchmarkThroughput(b *testing.B) {
 		}
 	}()
 
-	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		fmt.Println(i)
 		fmt.Fprintln(conn, i)
@@ -111,7 +186,6 @@ func BenchmarkConnections(b *testing.B) {
 		}
 	}()
 	
-	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		// Each goroutine has its own bytes.Buffer.
 		for pb.Next() {
