@@ -31,6 +31,7 @@ The relay binary can be used in one of two ways:
 ### Integrate relay into your server
 
   There are three possible means of integrating relay into your server.
+  
     1 You can use a multiplexer to send multiple connections through a single TCP connection.
     2 You can create a connection pool that will accept connections for this one request chain.
     3 you can wait for connection events before establishing a new connection. 
@@ -74,7 +75,7 @@ The relay binary can be used in one of two ways:
   Now that you have selected `event` protocol you need to indicate if your establishing a new event listener or your are responding to an event. To establish a new event listener you simply send `new\n` to the server. When this happens the server will confirm your ready to recieve events by sending `<port>\n` back to the client. When a new connection for your event is establisht with the server the server will send your event client an id that you will use to recieve the connection. the connection on the wire will look 
 
   Communication Series
-  
+
 | Client                | Server        | user                  |
 | --------------------- | ------------- | --------------------- |
 | event\n               |               |                       |
