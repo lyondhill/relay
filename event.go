@@ -1,11 +1,11 @@
 package main
 
 import (
-	"net"
-	"log"
-	"io"
-	"fmt"
 	"crypto/rand"
+	"fmt"
+	"io"
+	"log"
+	"net"
 	// "time"
 )
 
@@ -30,7 +30,7 @@ func handleEventRequest(relayConn net.Conn) {
 			log.Fatal("Connection couldnt be established", err.Error())
 		}
 
-		// inform the connection of the newly established port number	
+		// inform the connection of the newly established port number
 		_, err = fmt.Fprintf(relayConn, "%d\n", port(listener))
 		if err != nil {
 			log.Fatalf("Unable to communicate with the relay client %s", err)
@@ -57,21 +57,20 @@ func handleEventRequest(relayConn net.Conn) {
 		go io.Copy(relayConn, waitingConn)
 		io.Copy(waitingConn, relayConn)
 
-	}	
+	}
 
 }
 
 // create a random id for the event and confirm the event id isnt being used by another
-// todo: locking when modifying a map
 func randEventID() string {
-    n := 5
-    b := make([]byte, n)
-    if _, err := rand.Read(b); err != nil {
-        panic(err)
-    }
+	n := 5
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		panic(err)
+	}
 
-    s := fmt.Sprintf("%X", b)
-	
+	s := fmt.Sprintf("%X", b)
+
 	// if the id is already used. try again
 	if _, ok := waitingConnections[s]; ok {
 		return randEventID()
@@ -83,7 +82,6 @@ func randEventID() string {
 func eventUserConnection(listener net.Listener, relayConn net.Conn) {
 	// fire up the listener go routine and start reading from channels
 	connChan := connChanListener(listener)
-
 
 	// listen for new connections on the new listener
 	for {
@@ -97,7 +95,7 @@ func eventUserConnection(listener net.Listener, relayConn net.Conn) {
 
 		}
 
-		// add in a case that will allow us to check for disconnects of the relay 
+		// add in a case that will allow us to check for disconnects of the relay
 		// that way we can shut down the listener
 
 	}

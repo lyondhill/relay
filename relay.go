@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-
 // handle all incoming relay connections
 func handleRelayRequest(relayConn net.Conn) {
 
@@ -84,7 +83,7 @@ func connChanListener(listener net.Listener) chan net.Conn {
 }
 
 func port(listener net.Listener) int {
-	addrParts := strings.Split(listener.Addr().String(), ":") 
-	port, _ := strconv.Atoi(addrParts[len(addrParts) - 1])
+	addrParts := strings.Split(listener.Addr().String(), ":")
+	port, _ := strconv.Atoi(addrParts[len(addrParts)-1])
 	return port
 }

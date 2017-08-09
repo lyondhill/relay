@@ -1,18 +1,18 @@
 package main
 
 import (
-	"testing"
-	"os"
-	"net"
 	"fmt"
 	"io"
+	"net"
+	"os"
+	"testing"
 
 	"github.com/hashicorp/yamux"
 )
 
 func init() {
 	os.Args = []string{"relay", "1234"}
-	go serverStart()	
+	go serverStart()
 }
 
 func TestMuxServer(t *testing.T) {
@@ -42,7 +42,7 @@ func TestMuxServer(t *testing.T) {
 	conn, _ := net.Dial("tcp", "localhost:1235")
 	fmt.Fprintln(conn, "information!")
 
-	info := <- msgs
+	info := <-msgs
 	if info != "information!" {
 		t.Errorf("information not transmitted between server and client")
 	}
@@ -86,7 +86,7 @@ func TestPoolServer(t *testing.T) {
 	conn, _ := net.Dial("tcp", "localhost:1236")
 	fmt.Fprintln(conn, "information!")
 
-	info := <- msgs
+	info := <-msgs
 	if info != "information!" {
 		t.Errorf("information not transmitted between server and client (%s)", info)
 	}
@@ -118,7 +118,7 @@ func TestEventServer(t *testing.T) {
 
 	fmt.Fprintln(conn, "information!")
 
-	serverConnection := <- newID
+	serverConnection := <-newID
 
 	serv2, _ := net.Dial("tcp", "localhost:1234")
 
@@ -143,11 +143,11 @@ func BenchmarkThroughput(b *testing.B) {
 	session, _ := yamux.Server(serv, yamux.DefaultConfig())
 
 	go func() {
-		for  {
+		for {
 			servConn, _ := session.Accept()
 
 			io.Copy(servConn, servConn)
-			
+
 		}
 	}()
 
@@ -165,9 +165,8 @@ func BenchmarkThroughput(b *testing.B) {
 		fmt.Println(i)
 		fmt.Fprintln(conn, i)
 	}
-		
-}
 
+}
 
 func BenchmarkConnections(b *testing.B) {
 	serv, _ := net.Dial("tcp", "localhost:1234")
@@ -178,14 +177,14 @@ func BenchmarkConnections(b *testing.B) {
 	session, _ := yamux.Server(serv, yamux.DefaultConfig())
 
 	go func() {
-		for  {
+		for {
 			servConn, _ := session.Accept()
 
 			io.Copy(servConn, servConn)
-			
+
 		}
 	}()
-	
+
 	b.RunParallel(func(pb *testing.PB) {
 		// Each goroutine has its own bytes.Buffer.
 		for pb.Next() {
@@ -198,10 +197,9 @@ func BenchmarkConnections(b *testing.B) {
 					fmt.Fscanln(conn, &word)
 				}
 			}()
-			fmt.Fprintln(conn, "hello")		
+			fmt.Fprintln(conn, "hello")
 			conn.Close()
 		}
 	})
 
-		
 }

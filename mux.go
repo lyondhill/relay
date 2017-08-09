@@ -1,11 +1,11 @@
 package main
 
 import (
-	"net"
-	"log"
 	"fmt"
-	"time"
 	"io"
+	"log"
+	"net"
+	"time"
 
 	"github.com/hashicorp/yamux"
 )
@@ -22,7 +22,7 @@ func handleMuxRequest(relayConn net.Conn) {
 		log.Fatal(err.Error())
 	}
 
-	// inform the connection of the newly established port number	
+	// inform the connection of the newly established port number
 	_, err = fmt.Fprintf(relayConn, "%d\n", port(listener))
 	if err != nil {
 		log.Fatalf("Unable to communicate with the relay client %s", err)
@@ -63,7 +63,7 @@ func handleMuxRequest(relayConn net.Conn) {
 
 	// if we get here we went through all the avaliable ports on the
 	// machine and were unable to find an available one
-	log.Fatalln("Unable to establish a relay listener")	
+	log.Fatalln("Unable to establish a relay listener")
 }
 
 // once a new connection comes in for our client

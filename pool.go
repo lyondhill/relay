@@ -1,12 +1,12 @@
 package main
 
 import (
-	"net"
-	"log"
-	"sync"
-	"io"
-	"fmt"
 	"crypto/rand"
+	"fmt"
+	"io"
+	"log"
+	"net"
+	"sync"
 	"time"
 )
 
@@ -30,7 +30,6 @@ func handlePoolRequest(relayConn net.Conn) {
 		connPool := sync.Pool{}
 		connPool.Put(relayConn)
 
-
 		// generate a new id for this pool
 		id := randPoolID()
 		pools[id] = connPool
@@ -42,13 +41,12 @@ func handlePoolRequest(relayConn net.Conn) {
 			return
 		}
 
-		// inform the connection of the newly established port number	
+		// inform the connection of the newly established port number
 		_, err = fmt.Fprintf(relayConn, "%d\n", port(listener))
 		if err != nil {
 			log.Printf("Unable to communicate with the relay client %s", err)
 			return
 		}
-
 
 		// inform the new connection of the ID they can use
 		_, err = fmt.Fprintf(relayConn, "%s\n", id)
@@ -68,23 +66,21 @@ func handlePoolRequest(relayConn net.Conn) {
 			return
 		}
 		pool.Put(relayConn)
-		// todo: lock around map updates
 		pools[action] = pool
-	}	
+	}
 
 }
 
 // create a random id for the pool and confirm the pool hasnt already used this id
-// todo: lock when modifying the map
 func randPoolID() string {
-    n := 5
-    b := make([]byte, n)
-    if _, err := rand.Read(b); err != nil {
-        panic(err)
-    }
+	n := 5
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		panic(err)
+	}
 
-    s := fmt.Sprintf("%X", b)
-	
+	s := fmt.Sprintf("%X", b)
+
 	if _, ok := pools[s]; ok {
 		return randPoolID()
 	}
@@ -120,7 +116,7 @@ func poolUserConnection(listener net.Listener, id string) {
 			pool := pools[id]
 			connection := pool.Get()
 			if connection == nil {
-				// shut down the listener 
+				// shut down the listener
 				listener.Close()
 				return
 			} else {
@@ -129,12 +125,12 @@ func poolUserConnection(listener net.Listener, id string) {
 			}
 		}
 	}
-	
+
 }
 
 func handlePoolClientConn(clientConn net.Conn, id string) {
 	// dont leave the client connection open
-	defer clientConn.Close() 
+	defer clientConn.Close()
 
 	// grab a new connection from the pool.
 	pool, ok := pools[id]
