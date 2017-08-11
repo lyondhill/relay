@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
+	"flag"
 	"strconv"
 	"strings"
 )
+
+var listenPort int
 
 // handle all incoming relay connections
 func handleRelayRequest(relayConn net.Conn) {
@@ -37,14 +39,17 @@ func handleRelayRequest(relayConn net.Conn) {
 // on established connection inform relayconn how to connect to it
 func establishListener(relayConn net.Conn) (net.Listener, error) {
 
-	// make the port unber more loopable
-	i, err := strconv.Atoi(os.Args[1])
-	if err != nil {
-		log.Fatalf("unable to parse port number %s", os.Args[1])
+	if listenPort == 0 {
+		// make the port unber more loopable
+		i, err := strconv.Atoi(flag.Arg(0))
+		if err != nil {
+			log.Fatalf("unable to parse port number %s", flag.Arg(0))
+		}
+		listenPort = i		
 	}
 
 	// start at the port number we were given and attempt incremental increases
-	for ; i <= 65535; i++ {
+	for i := listenPort; i <= 65535; i++ {
 		listener, err := net.Listen("tcp", fmt.Sprintf(":%d", i))
 		if err != nil {
 			// we were unable to establish a connection on the port

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 )
 
 // get a local port to possibly forward connections to
@@ -23,7 +22,7 @@ func main() {
 		return
 	}
 
-	if len(os.Args) != 2 {
+	if len(flag.Args()) != 1 {
 		log.Fatalln("Please specify a listen port `relay <port>`")
 	}
 
@@ -34,7 +33,7 @@ func main() {
 
 // initiate the server
 func serverStart() {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", os.Args[1]))
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", flag.Arg(0)))
 	if err != nil {
 		log.Fatalf("Cannot establish listener: %s\n", err)
 	}

@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"io"
+	"flag"
 	"net"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/yamux"
 )
@@ -131,6 +133,33 @@ func TestEventServer(t *testing.T) {
 	if info != "information!" {
 		t.Errorf("information not transmitted between server and client (%s)", info)
 	}
+
+}
+
+func TestForwarding(t *testing.T) {
+	os.Args = []string{"relay", "--localForwardPort=3240", "localhost", "1234"}
+
+	flag.Parse()
+
+	go localProxy()
+	// fire up the proxy
+
+	go func() {
+		listener, _ := net.Listen("tcp", ":3240")
+		for {
+			conn, _ := listener.Accept()
+			io.Copy(conn, conn)
+		}		
+	}()
+	<-time.After(1*time.Millisecond)
+	conn, _ := net.Dial("tcp", "localhost:1238")
+	fmt.Fprintln(conn, "helloFriend")
+
+	var str string
+	fmt.Fscanln(conn, &str)
+	if str != "helloFriend" {
+		t.Errorf("information not transmitted between server and client (%s)", str)
+	}	
 
 }
 
